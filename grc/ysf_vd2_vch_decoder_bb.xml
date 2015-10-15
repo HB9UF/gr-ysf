@@ -1,0 +1,15 @@
+<block>
+  <name>YSF V/D2 VCH Decoder</name>
+  <key>ysf_vd2_vch_decoder_bb</key>
+  <category>YSF</category>
+  <import>import ysf</import>
+  <make>ysf.vd2_vch_decoder_bb()</make>
+  <sink>
+    <name>in</name>
+    <type>byte</type>
+  </sink>
+  <source>
+    <name>out</name>
+    <type>byte</type>
+  </source>
+</block>

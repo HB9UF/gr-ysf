@@ -1,0 +1,15 @@
+<block>
+  <name>YSF FICH Sink</name>
+  <key>ysf_fich_sink_b</key>
+  <category>YSF</category>
+  <import>import ysf</import>
+  <make>ysf.fich_sink_b()</make>
+  <sink>
+    <name>in</name>
+    <type>byte</type>
+  </sink>
+  <source>
+    <name>demux_instruction</name>
+    <type>message</type>
+  </source>
+</block>

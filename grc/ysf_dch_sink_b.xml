@@ -1,0 +1,11 @@
+<block>
+  <name>YSF DCH Sink</name>
+  <key>ysf_dch_sink_b</key>
+  <category>YSF</category>
+  <import>import ysf</import>
+  <make>ysf.dch_sink_b()</make>
+  <sink>
+    <name>in</name>
+    <type>byte</type>
+  </sink>
+</block>

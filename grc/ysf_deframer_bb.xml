@@ -1,0 +1,36 @@
+<block>
+  <name>YSF Deframer</name>
+  <key>ysf_deframer_bb</key>
+  <category>YSF</category>
+  <import>import ysf</import>
+  <make>ysf.deframer_bb($threshold)</make>
+  <param>
+    <name>Threshold</name>
+    <key>threshold</key>
+    <type>int</type>
+  </param>
+  <sink>
+    <name>in</name>
+    <type>byte</type>
+  </sink>
+  <sink>
+    <name>demux_instruction</name>
+    <type>message</type>
+  </sink>
+  <source>
+    <name>FICH</name>
+    <type>byte</type>
+  </source>
+  <source>
+    <name>VD1_DCH</name>
+    <type>byte</type>
+  </source>
+  <source>
+    <name>VD2_DCH</name>
+    <type>byte</type>
+  </source>
+  <source>
+    <name>VD_VCH</name>
+    <type>byte</type>
+  </source>
+</block>
