@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="style.css">
+<title>gr-ysf -- GNU Radio modules for decoding Yaesu System Fusion C4FM packets</title>
+</head>
+
+<body>
+<h1>Introduction</h1>
+<p>Yaesu System Fusion (YSF) is a radio system designed and implemented by Yaesu.
+At its core, it merges traditional FM with a voice packet mode. This project's
+aim is to investigate the 'digital' aspect of YSF and to provide decoding tools.
+In order to meet this goal, <a href="http://gnuradio.org/">GNU Radio</a> is
+employed to do most of the tricky things outlined in the 
+<a href="https://www.yaesu.com/downloadFile.cfm?FileID=8237&FileCatID=263&FileName=Yaesu%5FAmateur%20Radio%20Digital%20Specs%5F1V01%5FEN%2DGB.pdf&FileContentType=application%2Fpdf">
+technical specifications of the system</a>.</p>
+
+<p>Please note that this is not a software package that you can download and tune
+into YSF signals. This is merely a proof of concept that demonstrates that it is
+possible to build a receiver for YSF. Insights gained from this work might be
+used to add YSF support to e.g. <a href="http://wiki.radioreference.com/index.php/Digital_Speech_Decoder_%28software_package%29">
+DSD</a>. Also note that this is not a finished product. For example, only the
+half rate mode ("DN") is supported; I have not addressed the full rate mode
+("VW"). Check the <a href="https://github.com/HB9UF/gr-ysf/issues">issues</a>
+page on github for an overview of what you can expect. In particular,
+<a href="https://github.com/szechyjs/mbelib">mbelib</a> is required to turn the
+AMBE frames into something that you can year. This might have legal
+implications for you, please be aware of that.</p>
+
+<p>This is an early recording (<a href="first_recording.mp3">direct link</a>) of
+what I got out of the system while transmitting with an <a
+href="http://www.yaesu.com/indexVS.cfm?cmd=DisplayProducts&ProdCatID=111&encProdID=25F65DA12CA1FCB444A927CD14417BFD">FT1D</a>.
+Reception was done with a <a href="http://greatscottgadgets.com/hackrf/"</a>HackRF One</a>, 
+although one of those cheap RTL SDR dongles will probably work just as well
+(stay tuned for an update).</p>
+
+<audio controls>
+<source src="first_recording.mp3" type="audio/mpeg">
+Your browser does not support the audio element. Use <a href="first_recording.mp3">this link</a> instead.
+</audio> 
+
+<p>Before I dig into the details of this work, let me say thank you to the amazing
+GNU Radio community who not only came up with a great software framework, but
+also provided me with a lot of help when things were not working the way I
+expected them to work. <a href="https://twitter.com/jmcorgan">Johnathan
+Corgan</a> in particular shared a lot of the insights he gained while working on
+C4FM for the past few years with me.</p>
+
+<h1>Walkthrough</h1>
+<p>This section briefly outlines the <code>ysf_rx.grc</code> flowgraph found in the
+<a href="https://github.com/HB9UF/gr-ysf/tree/master/examples"><code>examples/</code></a> 
+directory of the project. The flograph corresponds to commit
+<code>b67161a</code>, although I will update this page as things progress. The
+full flowgraph can be seen <a href="ysf_rx.png">here</a>, I will split it into
+several parts to make this discussion easier to follow.</p>
+
+<h2>Frontend</h2>
+<img class="center" alt="Top part of the flowgraph" src="frontend.png">
+
+<p>The quadrature signal is captured by hardware (osmocom Source) or replayed
+through a file source and fed into a frequency xlating FIR filter, where it is
+filtered, shifted to DC and down-sampled. The filtering is necessary to prevent
+aliases. The frequency shift is done because SDRs have a spike at DC that is in
+the way. An easy way to get around that is to set the hardware up such that the
+signal for interest is offset. For example, one can set a center frequency of
+432&nbsp;MHz and transmit at 432.5&nbsp;MHz. The frequency has then to be
+translated downwards by 500&nbsp;kHz. The quadrature signal is the demodulated
+before it is fed into the polyphase clock sync block. This block applies the
+root-raised cosine (RRC) filter and outputs dibits at a symbol rate of
+4.8&nbsp;kHz. Note that the equation for the RRC filter is completely wrong and
+doesn't even make sense.</p>
+
+<h2>Slicing, Mapping, Deframing and the FICH Packet</h2>
+<img class="center" alt="Center part of the flowgraph" src="slicing_mapping_deframing_fich.png">
+
+<p>The signal from the clock recovery block is sliced into the four levels that
+are inherent to C4FM. They are then remapped to the dibits defined in Table 3-1
+of the Yaesu spec. The YSF Deframer is my first custom block. It waits for the
+sync word <code>0xd471c9634d</code> which marks the beginning of every packet.
+The subsequent 200 bits are sent to the top output stream. Those are the FICH
+header which contains information on what is contained in the packet. The
+subsequent 720 bits are then temporarily stored inside the deframer.</p>
+
+<p>The FICH header is then decoded by a sequence of blocks that is very similar
+to the payload decoding outlined in the next section. Note however that in the
+flowchart shown above, Golay decoding is not performed. Instead, the first 12
+bits are kept and the remainder is thrown away. I can get away with this because
+the first block of the Golay-matrix is identity, but eventually I will have to
+do this properly. After decoding, the FICH header hits the YSF FICH Sink, the
+second custom block. This block parses the FICH header and sends back a message
+to the deframer, telling it what is contained in the payload. The deframer
+slices the payload according to those instructions and stuffs it into the three
+payload streams.</p>
+
+<h2>Decoding</h2>
+<img class="center" alt="Bottom part of the flowgraph" src="decoding.png">
+<p>This part of the flowgraph takes care of turning the dibits into the packets
+expected by the sinks. This is an implementation of Figures 4-30, 4-31 (which
+only differs from the former one by its parameters) and 4-32 of the Yaesu spec.
+It is remarkable that all of these blocks are standard GNU Radio blocks. I had
+to hack up my own scrambler as the one from GNU Radio exhibited a bug.</p>
+
+<p>Only two custom blocks are necessary in this part of the flowgraph: The DCH
+Sink takes the DCH packets containing e.g. call sign information and dumps them
+to the console. The V/D 2 VCH Decoder undoes the weird bit triplication
+introduced in step 3 of Figure 4-32 of the Yaesu spec. The output of this block
+is an AMBE frame. Those AMBE frames are interleaved with a zero-byte. I'm not
+sure what those are, but dsd/mbelib seems to expect those to be there.</p>
+
+<p>The output file can be prefixed with a header required by dsd (<code>cat
+ambe.header vch_packed.raw > ambefile.amb</code>) and then played back using
+dsd (<code>dsd -w output.wav -r ambefile.amb</code>). A glue block to get around
+this single offline step is in the works.</p>
+
+<h1>License, Code and Dependencies</h1>
+<p>The project is released on a <a href="https://github.com/HB9UF/gr-ysf/">github page</a> under the 
+<a href="https://www.gnu.org/licenses/gpl.html">GNU GPL 3</a> license. The code
+is written in C++ and was tested with g++ 4.8.4 and GNU Radio 3.7.5.
+<a href="https://github.com/szechyjs/mbelib">mbelib</a> is required to
+synthesize voice.</p>
+</body>
+</html>
