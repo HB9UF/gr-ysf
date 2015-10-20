@@ -30,9 +30,7 @@ namespace gr {
     class vd2_vch_decoder_bb_impl : public vd2_vch_decoder_bb
     {
      private:
-         uint8_t d_packet;
-         int8_t d_packet_bit;
-         uint16_t d_input_bit_counter;
+         uint16_t d_bit_counter;
          uint8_t d_one_voter;
 
      public:

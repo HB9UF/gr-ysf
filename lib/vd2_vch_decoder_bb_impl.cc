@@ -40,9 +40,7 @@ namespace gr {
               gr::io_signature::make(1, 1, sizeof(char)),
               gr::io_signature::make(1, 1, sizeof(char)))
     {
-        d_packet = 0;
-        d_packet_bit = 7;
-        d_input_bit_counter = 0;
+        d_bit_counter = 0;
         d_one_voter = 0;
     }
 
@@ -72,53 +70,32 @@ namespace gr {
         int i=0;
         while(i < ninput_items[0] && output_counter < noutput_items)
         {
-            uint8_t new_bit = 0;
             // According to Figure 4-32, the first 27 bits are tripled up to 81
             // bits during TX. We use majority vote to figure out what that bit
             // was.
-            if ( d_input_bit_counter < 81 )
+            if ( d_bit_counter < 81 )
             {
                 d_one_voter += in[i++];
-                if((d_input_bit_counter+1) % 3)
+                d_bit_counter++;
+                if((d_bit_counter) % 3)
                 {
-                    d_input_bit_counter++;
                     continue;
                 }
-                new_bit = ( d_one_voter > 1 );
+                out[output_counter++] = (d_one_voter > 1);
                 d_one_voter = 0;
+            }
+            else if ( d_bit_counter < 103)
+            {
+                // The remaining 22 bits are loaded as-is.
+                out[output_counter++] = in[i++];
+                d_bit_counter++;
             }
             else
             {
-                // The remaining 22 bits are loaded as-is.
-                new_bit = in[i++];
-            }
-            d_input_bit_counter++;
-
-
-            if( d_packet_bit == 7 )
-            {
-                d_packet = 0;
-            }
-
-            d_packet |= (new_bit << d_packet_bit);
-
-            d_packet_bit--;
-            if(d_packet_bit == -1 || d_input_bit_counter == 104)
-            {
-                d_packet_bit = 7;
-
-                // We also consume the padding bit here
-                if(d_input_bit_counter ==104 )
-                {
-                    // FIXME: check padding bit (issue #9)
-                    // Mask out padding bit. The output will therefore be:
-                    // 6 bytes of 'normal' AMBE bits as they came in
-                    // 7th byte with the LSB set to the 49th bit.
-                    // This is how mbelib expects the data to be...
-                    d_packet = (d_packet >> 7) & 0x01;
-                    d_input_bit_counter = 0;
-                }
-                out[output_counter++] = d_packet;
+                // FIXME: check padding bit (issue #9).
+                // The padding bit is silently consumed here.
+                i++;
+                d_bit_counter = 0;
             }
         }
 
