@@ -25,5 +25,6 @@ install(FILES
     deframer_bb.h
     fich_sink_b.h
     dch_sink_b.h
-    vd2_vch_decoder_bb.h DESTINATION include/ysf
+    vd2_vch_decoder_bb.h
+    mbelib_block_bf.h DESTINATION include/ysf
 )

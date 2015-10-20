@@ -30,7 +30,8 @@ list(APPEND ysf_sources
     fich_sink_b_impl.cc
     dch_sink_b_impl.cc
     demux_planner.cc
-    vd2_vch_decoder_bb_impl.cc )
+    vd2_vch_decoder_bb_impl.cc
+    mbelib_block_bf_impl.cc )
 
 set(ysf_sources "${ysf_sources}" PARENT_SCOPE)
 if(NOT ysf_sources)
