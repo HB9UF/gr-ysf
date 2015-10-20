@@ -1,0 +1,20 @@
+<block>
+  <name>mbelib Conversion Block</name>
+  <key>ysf_mbelib_block_bf</key>
+  <category>YSF</category>
+  <import>import ysf</import>
+  <make>ysf.mbelib_block_bf($codec)</make>
+  <param>
+    <name>Codec</name>
+    <key>codec</key>
+    <type>string</type>
+  </param>
+  <sink>
+    <name>in</name>
+    <type>byte</type>
+  </sink>
+  <source>
+    <name>out</name>
+    <type>float</type>
+  </source>
+</block>
