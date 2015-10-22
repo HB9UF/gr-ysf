@@ -45,3 +45,4 @@ GR_ADD_TEST(qa_deframer_bb ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_d
 GR_ADD_TEST(qa_fich_sink_b ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_fich_sink_b.py)
 GR_ADD_TEST(qa_dch_sink_b ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_dch_sink_b.py)
 GR_ADD_TEST(qa_vd2_vch_decoder_bb ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_vd2_vch_decoder_bb.py)
+GR_ADD_TEST(qa_mbelib_block_bf ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_mbelib_block_bf.py)

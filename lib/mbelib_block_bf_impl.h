@@ -18,25 +18,39 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef INCLUDED_YSF_VD2_VCH_DECODER_BB_IMPL_H
-#define INCLUDED_YSF_VD2_VCH_DECODER_BB_IMPL_H
+#ifndef INCLUDED_YSF_MBELIB_BLOCK_BF_IMPL_H
+#define INCLUDED_YSF_MBELIB_BLOCK_BF_IMPL_H
 
-#include <ysf/vd2_vch_decoder_bb.h>
+#include <ysf/mbelib_block_bf.h>
 #include <cstdint>
 
 namespace gr {
   namespace ysf {
 
-    class vd2_vch_decoder_bb_impl : public vd2_vch_decoder_bb
+extern "C"
+{
+    #include <mbelib.h>
+}
+    class mbelib_block_bf_impl : public mbelib_block_bf
     {
      private:
-         uint16_t d_bit_counter;
-         uint8_t d_one_voter;
+      mbe_parms d_cur_mp;
+      mbe_parms d_prev_mp;
+      mbe_parms d_prev_mp_enhanced;
+
+      enum codec_t { AMBE3600X2400, AMBE3600X2450, IMBE7200X4400 };
+      codec_t d_codec;
+
+      char d_mbe_packet_buffer[88]; // For AMBE we only use 49 out of the 88
+      uint8_t d_mbe_packet_size;
+      uint16_t d_output_packet_size;
+      uint8_t d_mbe_packet_counter;
 
      public:
-      vd2_vch_decoder_bb_impl();
-      ~vd2_vch_decoder_bb_impl();
+      mbelib_block_bf_impl(std::string codec);
+      ~mbelib_block_bf_impl();
 
+      // Where all the action really happens
       void forecast (int noutput_items, gr_vector_int &ninput_items_required);
 
       int general_work(int noutput_items,
@@ -48,5 +62,5 @@ namespace gr {
   } // namespace ysf
 } // namespace gr
 
-#endif /* INCLUDED_YSF_VD2_VCH_DECODER_BB_IMPL_H */
+#endif /* INCLUDED_YSF_MBELIB_BLOCK_BF_IMPL_H */
 

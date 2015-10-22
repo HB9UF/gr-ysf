@@ -22,7 +22,7 @@
 ########################################################################
 include(GrPlatform) #define LIB_SUFFIX
 
-include_directories(${Boost_INCLUDE_DIR})
+include_directories(${Boost_INCLUDE_DIR} ${LIBMBE_INCLUDE_DIR})
 link_directories(${Boost_LIBRARY_DIRS})
 list(APPEND ysf_sources
     deframer_bb_impl.cc
@@ -30,7 +30,8 @@ list(APPEND ysf_sources
     fich_sink_b_impl.cc
     dch_sink_b_impl.cc
     demux_planner.cc
-    vd2_vch_decoder_bb_impl.cc )
+    vd2_vch_decoder_bb_impl.cc
+    mbelib_block_bf_impl.cc )
 
 set(ysf_sources "${ysf_sources}" PARENT_SCOPE)
 if(NOT ysf_sources)
@@ -39,7 +40,7 @@ if(NOT ysf_sources)
 endif(NOT ysf_sources)
 
 add_library(gnuradio-ysf SHARED ${ysf_sources})
-target_link_libraries(gnuradio-ysf ${Boost_LIBRARIES} ${GNURADIO_ALL_LIBRARIES})
+target_link_libraries(gnuradio-ysf ${Boost_LIBRARIES} ${GNURADIO_ALL_LIBRARIES} ${LIBMBE_LIBRARY})
 set_target_properties(gnuradio-ysf PROPERTIES DEFINE_SYMBOL "gnuradio_ysf_EXPORTS")
 
 if(APPLE)
