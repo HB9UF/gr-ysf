@@ -8,6 +8,18 @@
     <name>Codec</name>
     <key>codec</key>
     <type>string</type>
+    <option>
+        <name>ambe3600x2400</name>
+        <key>ambe3600x2400</key>
+    </option>
+    <option>
+        <name>ambe3600x2450</name>
+        <key>ambe3600x2450</key>
+    </option>
+    <option>
+        <name>imbe7200x4400</name>
+        <key>imbe7200x4400</key>
+    </option>
   </param>
   <sink>
     <name>in</name>
