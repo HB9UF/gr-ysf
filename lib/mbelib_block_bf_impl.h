@@ -38,7 +38,12 @@ extern "C"
       mbe_parms d_prev_mp;
       mbe_parms d_prev_mp_enhanced;
 
-      char d_mbe_packet_buffer[49];
+      enum codec_t { AMBE3600X2400, AMBE3600X2450, IMBE7200X4400 };
+      codec_t d_codec;
+
+      char d_mbe_packet_buffer[88]; // For AMBE we only use 49 out of the 88
+      uint8_t d_mbe_packet_size;
+      uint16_t d_output_packet_size;
       uint8_t d_mbe_packet_counter;
 
      public:
