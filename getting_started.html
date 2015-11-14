@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="style.css">
+<title>gr-ysf: Getting Started</title>
+</head>
+
+<body>
+<div id="title"></div>
+<div id="body">
+<h1>Introduction</h1>
+This page tries to bootstrap you to the point where you can successfully run the
+receiver example shipped in the <code>examples/</code> directory. That said,
+please keep in mind that this is not a finalized product, but rather a proof of
+concept implementation which you are invited to tinker and experiment with. I
+assume that you already successfully compiled and installed <code>gr-ysf</code>.
+Otherwise, please refer to the <code>README.md</code> on the 
+<a href="https://github.com/HB9UF/gr-ysf">github page</a> for instruction on compiling the
+project. It surely helps to have some general understanding of how GNU Radio and
+the gnuradio-companion work. Please refer to the <a href="http://greatscottgadgets.com/sdr/">
+video series by Mike Ossman</a> and the introduction by Al Williams
+(<a href="http://hackaday.com/2015/11/11/getting-started-with-gnu-radio/">part 1</a>,
+<a href="https://hackaday.com/2015/11/12/your-first-gnu-radio-receiver-with-sdrplay/">part 2</a>)
+if you feel that you are lacking those skills.
+
+<h1>Initial Setup</h1>
+<p>Start up the <code>gnuradio-companion</code> and load the
+<code>examples/ysf_rx.grc</code> flowgraph. The Polyphase Clock Sync block
+currently requires an input sampling rate of 80 kHz. You have to set the
+hardware sampling rate <code>samp_rate</code> and the Frequency Xlating FIR
+Filter decimation factor <code>decimator</code> accordingly. For example, if
+you are using a HackRF One, you could set <code>samp_rate</code> to 8&nbsp;MHz
+(<code>8e6</code>) and <code>decimator</code> to <code>100</code>. If you use an
+RTL-SDR dongle, I recommend a <code>samp_rate</code> of 2&nbsp;MHz (<code>2e6</code>)
+and a <code>decimator</code> of <code>25</code>. You can set those values by
+double-clicking the corresponding variable blocks in the top left corner of the
+flowgraph. If some part of the flowgraph gets red, a mistake was detected and you
+have to address that. This happens e.g. if you enter <code>2M</code> instead of
+<code>2e6</code> into the sampling rate field.</p>
+
+<h1>Coarse Frequency Setting</h1>
+<p>Decide on a frequency to transmit and tune your radio accordingly. Set the
+target frequency <code>target_freq</code> to the same frequency. Set the
+<code>center_freq</code> variable to a frequency that is close to, but offset
+from your transmit frequency. Do not set <code>center_freq</code> to your exact
+transmit frequency. The reason for this is that every receiver based on
+quadrature sampling will exhibit a spike at DC. This is an artifact that is
+more prominent in some receivers than others, but it is trivial to overcome
+this potential problem by simply introducing this offset.</p>
+
+<p><b>Example:</b> If you have your transmitter set to 432.500&nbsp;MHz, set
+<code>target_freq</code> to <code>432.8e6</code> and <code>center_freq</code>
+to <code>432.0e6</code>. This way, the center frequency of 432.0&nbsp;MHz
+introduces an 500&nbsp;kHz offset to avoid said problem. The exact offset chosen
+does not matter as long as it is away from the DC spike, yet still within the
+sampling bandwidth of <code>samp_rate</code> around your target frequency.</p>
+
+<p>It should be unnecessary to state this explicitly, but the example frequencies
+in this document and the default frequencies in the example receiver are within
+the ham-radio band in my country. This might be different for you so please check
+that it's legal for you to transmit on your target frequency...</p>
+
+<h1>RX Gain</h1>
+<p>In this step, you have to set the gain of your dongle for optimal acquisition.
+If your gain is too high (or your transmitter too close and strong), you will
+overdrive the receiver front-end. If your gain is too low, the acquired signal
+is too weak, resulting in poor decoding performance. With the hardware I used
+(HackRF One and RTL-SDR dongle), the two numbers that need tweaking are the IF
+gain and the BB gain in the osmocom Source. Please refer to external
+documentation for allowed gain figures regarding your hardware. This seems to
+be the <a href="https://github.com/mossmann/hackrf/wiki/FAQ">FAQ</a> in the case
+of the HackRF One; I am not quite sure about the RTL-SDR dongle. Note however
+that the RF gain turns on a pre-amplifier of the HackRF One. You probably don't want
+that in order to protect your hardware. Hence I recommend keeping the
+RF Gain at 0.</p>
+
+<p>Run the flowgraph and transmit on the target frequency. This will pop up a window
+with four tabs. Stay in the leftmost <i>Wideband</i> tab. When you hit the PTT, a
+spike should appear in the top spectrum. A sinusoidal should appear in the bottom
+time domain representation. Set the gains such that you get a nice spike. If you have
+too much gain, artifacts will appear left and right of the spike and the sinusoidal
+will exceed an amplitude of 1. This will look as shown in the screen-shot below
+and is not good.</p>
+
+<img class="center" alt="Operating with too much gain" src="img_getting_started/highgain.png">
+
+<p>Similarly, if your gains are too low, the spike will be closer to the noise
+floor and the sinusoidal wave will have an amplitude below 1. Of course, if
+you're tuning into a weak station then that's as good as it gets, but my advice
+is to try with a good signal first and then go from there. A good acquisition
+has an amplitude slightly below 1 and a clean frequency spike without intermodulation
+products, as shown in the next screen-shot. This can often be obtained using the autoamtic
+gain control of the hardware (Gain Mode: Automatic).</p>
+
+<img class="center" alt="Operating with optimal gain" src="img_getting_started/goodgain.png">
+
+<h1>Coarse Frequency Setting</h1>
+<p>Since the system does not yet have automatic frequency correction (AFC, see 
+<a href="https://github.com/HB9UF/gr-ysf/issues/3">issue #3)</a>, you will not get a good
+decode unless the target frequency is aligned fairly well. Chances are that the
+oscillator inside your hardware is off and/or exhibits drift. Proceed as follows to check
+for proper alignment: Switch to the second tab (<i>Channel</i>) and transmit. It is easiest
+to transmit in FM without modulation, though doing so digitally will work as well.</p>
+
+<p>When using FM, center the spike within the passband of the channel-filter. You can do
+so by changing the <code>target_freq</code> variable. If this becomes a tedious procedure,
+you can add a GUI slider. The following screen-show shows instances of a target frequency
+that is too low (left), correct (center) and too high (right). Change the
+target frequency until the spike is centered as shown in the center case. Don't get confused
+that the spike is displayed at too high a frequency when the target frequency
+is actually too low, that's exactly the effect that your are correcting for...</p>
+
+<img class="center" alt="Centering carrier to target frequency" src="img_getting_started/centering.png">
+
+<p>When using digital, the process is pretty much the same but instead of a nice spike, you
+get a skewed bump. You can use the time domain plot below the spectrum in the <i>Channel</i>
+tab in the same way as before: Ideally the quadrature signal has an amplitude of 1.</p>
+
+<h1>Let's Go!</h1>
+<p>That completes the setup. If you now transmit in DN mode, you should get FICH packet dumps in
+the console window of gnuradio-companion as well as in the terminal from which
+you started the companion. Decoded audio will be played back through the speaker.</p>
+</div>
+</body>
+</html>
