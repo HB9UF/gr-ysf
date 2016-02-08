@@ -23,7 +23,7 @@
 
 #include <ysf/fich_sink_b.h>
 #include <cstdint>
-#include "packets/fich_packet.h"
+#include "fich_packet.h"
 
 namespace gr {
   namespace ysf {
