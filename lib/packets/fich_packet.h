@@ -9,15 +9,8 @@ class fich_packet
 {
     public:
         fich_packet();
-        enum payload_type_t {NONE, HEADER, TERMINATOR, VD2_0, VD2_1, VD2_2, VD2_3, VD2_4, VD2_5, VD2_6, VD2_7, FIXME};
-        payload_type_t append_bit(uint8_t bit);
+        bool append_bit(uint8_t bit);
 
-    private:
-        uint8_t bit_counter;
-        uint8_t byte_counter;
-        uint8_t packet[PACKET_SIZE];
-
-        // Only make those public with a double buffer (FIXME issue #21)
         uint8_t get_fi();
         uint8_t get_cs();
         uint8_t get_cm();
@@ -30,6 +23,14 @@ class fich_packet
         uint8_t get_dt();
         uint8_t get_sq();
         uint8_t get_sc();
+
+    private:
+        uint8_t bit_counter;
+        uint8_t byte_counter;
+        uint8_t packet[PACKET_SIZE];
+        // Stores old packet double-buffer style for getters
+        uint8_t shadow_packet[PACKET_SIZE]; 
+
 
 };
 
