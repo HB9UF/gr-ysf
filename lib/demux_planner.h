@@ -9,7 +9,7 @@ class demux_planner
     public:
         enum output_stream_t { VD1_DCH, VD2_DCH, VD_VCH, SKIP }; // FIXME get rid of SKIP
         enum state_t { STALL, ACTIONS_PENDING, DONE };
-        enum unit_type_t { CSD1, CSD2, DEST, SRC, DOWN, UP, REM12, REM34, NONE };
+        enum unit_type_t { CSD1, CSD2, CSD3, DEST, SRC, DOWN, UP, REM12, REM34, DT, NONE };
         struct plan_item_t
         {
             const output_stream_t output_stream;
