@@ -64,55 +64,14 @@ namespace gr {
         const char *in = (const char*) input_items[0];
         for(int i=0; i<ninput_items[0]; i++)
         {
-            fich_packet::payload_type_t p = packet.append_bit(in[i]);
-            // FIXME: Obviously there is some redundancy here. Also is this a
-            // symbol? I really don't like how this code looks...  Maybe a
-            // switch statement is more appropriate, or use a datastructure to
-            // do this maybe...
-            if(p == fich_packet::HEADER)
+            bool full = packet.append_bit(in[i]);
+            if(full)
             {
-                message_port_pub(pmt::string_to_symbol("demux_instruction"), pmt::cons(pmt::mp(demux_planner::HEADER), pmt::mp(-1)));
-            }
-            else if(p == fich_packet::TERMINATOR)
-            {
-                message_port_pub(pmt::string_to_symbol("demux_instruction"), pmt::cons(pmt::mp(demux_planner::TERMINATOR), pmt::mp(-1)));
-            }
-            else if(p == fich_packet::VD2_0)
-            {
-                message_port_pub(pmt::string_to_symbol("demux_instruction"), pmt::cons(pmt::mp(demux_planner::VD2), pmt::mp(0)));
-            }
-            else if(p == fich_packet::VD2_1)
-            {
-                message_port_pub(pmt::string_to_symbol("demux_instruction"), pmt::cons(pmt::mp(demux_planner::VD2), pmt::mp(1)));
-            }
-            else if(p == fich_packet::VD2_2)
-            {
-                message_port_pub(pmt::string_to_symbol("demux_instruction"), pmt::cons(pmt::mp(demux_planner::VD2), pmt::mp(2)));
-            }
-            else if(p == fich_packet::VD2_3)
-            {
-                message_port_pub(pmt::string_to_symbol("demux_instruction"), pmt::cons(pmt::mp(demux_planner::VD2), pmt::mp(3)));
-            }
-            else if(p == fich_packet::VD2_4)
-            {
-                message_port_pub(pmt::string_to_symbol("demux_instruction"), pmt::cons(pmt::mp(demux_planner::VD2), pmt::mp(4)));
-            }
-            else if(p == fich_packet::VD2_5)
-            {
-                message_port_pub(pmt::string_to_symbol("demux_instruction"), pmt::cons(pmt::mp(demux_planner::VD2), pmt::mp(5)));
-            }
-            else if(p == fich_packet::VD2_6)
-            {
-                message_port_pub(pmt::string_to_symbol("demux_instruction"), pmt::cons(pmt::mp(demux_planner::VD2), pmt::mp(6)));
-            }
-            else if(p == fich_packet::VD2_7)
-            {
-                message_port_pub(pmt::string_to_symbol("demux_instruction"), pmt::cons(pmt::mp(demux_planner::VD2), pmt::mp(7)));
-            }
-            else if(p != fich_packet::NONE)
-            {
-                std::cerr << "FIXME: Unknown packet!" << std::endl;
-                message_port_pub(pmt::mp("demux_instruction"), pmt::cons(pmt::mp(demux_planner::UNKNOWN), pmt::mp(-1)));
+                pmt::pmt_t d = pmt::make_dict();
+                d = pmt::dict_add(d, pmt::string_to_symbol("FI"), pmt::mp(packet.get_fi()));
+                d = pmt::dict_add(d, pmt::string_to_symbol("FN"), pmt::mp(packet.get_fn()));
+                d = pmt::dict_add(d, pmt::string_to_symbol("DT"), pmt::mp(packet.get_dt()));
+                message_port_pub(pmt::string_to_symbol("demux_instruction"), d);
             }
         }
         consume_each (ninput_items[0]);

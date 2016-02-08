@@ -9,7 +9,6 @@ class demux_planner
     public:
         enum output_stream_t { VD1_DCH, VD2_DCH, VD_VCH, SKIP }; // FIXME get rid of SKIP
         enum state_t { STALL, ACTIONS_PENDING, DONE };
-        enum packet_type_t { HEADER, TERMINATOR, VD2, UNKNOWN };
         enum unit_type_t { CSD1, CSD2, DEST, SRC, DOWN, UP, REM12, REM34, NONE };
         struct plan_item_t
         {
@@ -24,7 +23,7 @@ class demux_planner
         state_t get_state();
         plan_item_t get_current_item();
         void consume_current_item();
-        void plan_for(packet_type_t packet, long fn);
+        void plan_for(long fi, long fn, long dt);
     private:
         state_t d_state;
         std::queue<plan_item_t> d_item_queue;

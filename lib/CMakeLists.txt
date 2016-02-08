@@ -26,7 +26,7 @@ include_directories(${Boost_INCLUDE_DIR} ${LIBMBE_INCLUDE_DIR})
 link_directories(${Boost_LIBRARY_DIRS})
 list(APPEND ysf_sources
     deframer_bb_impl.cc
-    packets/fich_packet.cc
+    fich_packet.cc
     fich_sink_b_impl.cc
     dch_sink_b_impl.cc
     demux_planner.cc
