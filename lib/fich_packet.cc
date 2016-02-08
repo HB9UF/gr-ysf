@@ -23,7 +23,7 @@ bool fich_packet::append_bit(uint8_t bit)
         {
             // packet full
             ret = true;
-            std::memcpy(packet, shadow_packet, PACKET_SIZE);
+            std::memcpy(shadow_packet, packet, PACKET_SIZE);
 
             std::printf("FICH packet dump:\n");
             std::printf("  [");
