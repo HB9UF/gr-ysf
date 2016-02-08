@@ -46,6 +46,8 @@ namespace gr {
          std::vector<uint8_t> d_voip_id_packet;
          std::vector<uint8_t> d_radio_id_packet;
 
+         std::vector<uint8_t> d_dt_packet;
+
          // points to packet we are currently filling
          std::vector<uint8_t> *d_current_packet; 
          // Used to implement manual transitions from one packet to another.

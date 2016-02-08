@@ -55,6 +55,8 @@ dch_sink_b_impl::dch_sink_b_impl()
     d_voip_id_packet.resize(5);
     d_radio_id_packet.resize(5);
 
+    d_dt_packet.resize(20);
+
     d_byte_counter = 0;
     d_bit_counter = 7;
     d_current_packet = 0;
@@ -111,12 +113,15 @@ dch_sink_b_impl::general_work (int noutput_items,
                     case demux_planner::UP:
                         d_current_packet = &d_uplink_packet;
                         break;
+                    case demux_planner::CSD3:
                     case demux_planner::REM12:
                         d_current_packet = &d_downlink_id_packet;
                         break;
                     case demux_planner::REM34:
                         d_current_packet = &d_voip_id_packet;
                         break;
+                    case demux_planner::DT:
+                        d_current_packet = &d_dt_packet;
                 }
                 d_byte_counter = 0; // FIXME: This should always be the case anyway
                 tag++;
@@ -152,6 +157,18 @@ dch_sink_b_impl::general_work (int noutput_items,
                 else if(d_current_tag == demux_planner::CSD2 && d_current_packet == &d_downlink_packet) 
                 {
                     d_current_packet = &d_uplink_packet;
+                }
+                else if(d_current_tag == demux_planner::CSD3 && d_current_packet == &d_downlink_id_packet)
+                {
+                    d_current_packet = &d_uplink_id_packet;
+                }
+                else if(d_current_tag == demux_planner::CSD3 && d_current_packet == &d_uplink_id_packet)
+                {
+                    d_current_packet = &d_voip_id_packet;
+                }
+                else if(d_current_tag == demux_planner::CSD3 && d_current_packet == &d_voip_id_packet)
+                {
+                    d_current_packet = &d_radio_id_packet;
                 }
                 // FIXME: CSD3 (see issue #17)
                 else if(d_current_tag == demux_planner::REM12 && d_current_packet == &d_downlink_id_packet)
@@ -210,6 +227,10 @@ dch_sink_b_impl::general_work (int noutput_items,
         else if (d_current_packet == &d_radio_id_packet)
         {
             std::printf("    Radio ID:    ");
+        }
+        else if (d_current_packet == &d_dt_packet)
+        {
+            std::printf("    DW frame:    ");
         }
         for(uint8_t i=0; i<d_current_packet->size(); i++) std::printf("%c", d_current_packet->at(i));
         std::printf("\n");

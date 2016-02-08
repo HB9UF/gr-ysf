@@ -99,6 +99,37 @@ demux_planner::plan_for(long fi, long fn, long dt)
                         d_item_queue.push({ VD_VCH, 40/2+i*(144/2), 40/2+i*(144/2)+104/2, NONE } );
                     }
                     break;
+                // Data FR mode
+                case 0b01:
+                    switch (fn)
+                    {
+                        case 0:
+                            d_item_queue.push({ VD1_DCH, 0, 1, CSD1 } );
+                            for(uint8_t i=0; i < 10; i+=2)
+                                d_item_queue.push({ VD1_DCH, i*(72/2), i*(72/2)+72/2, NONE } );
+                            d_item_queue.push({ VD1_DCH, 0, 1, CSD2 } );
+                            for(uint8_t i=1; i < 10; i+=2)
+                                d_item_queue.push({ VD1_DCH, i*(72/2), i*(72/2)+72/2, NONE } );
+                            break;
+                        case 1:
+                            d_item_queue.push({ VD1_DCH, 0, 1, CSD3 } );
+                            for(uint8_t i=0; i < 10; i+=2)
+                                d_item_queue.push({ VD1_DCH, i*(72/2), i*(72/2)+72/2, NONE } );
+                            d_item_queue.push({ VD1_DCH, 0, 1, DT } );
+                            for(uint8_t i=1; i < 10; i+=2)
+                                d_item_queue.push({ VD1_DCH, i*(72/2), i*(72/2)+72/2, NONE } );
+                            break;
+                        default:
+                            d_item_queue.push({ VD1_DCH, 0, 1, DT } );
+                            for(uint8_t i=0; i < 10; i+=2)
+                                d_item_queue.push({ VD1_DCH, i*(72/2), i*(72/2)+72/2, NONE } );
+                            d_item_queue.push({ VD1_DCH, 0, 1, DT } );
+                            for(uint8_t i=1; i < 10; i+=2)
+                                d_item_queue.push({ VD1_DCH, i*(72/2), i*(72/2)+72/2, NONE } );
+                            break;
+                    }
+                    break;
+
                 default:
                     std::cerr << "Ignoring unknown packet with DT=" << dt << std::endl;
                     break;
