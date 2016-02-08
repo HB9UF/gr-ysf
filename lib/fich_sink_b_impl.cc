@@ -67,7 +67,11 @@ namespace gr {
             bool full = packet.append_bit(in[i]);
             if(full)
             {
-                message_port_pub(pmt::string_to_symbol("demux_instruction"), pmt::cons(pmt::mp(packet.get_fi()), pmt::mp(packet.get_fn())));
+                pmt::pmt_t d = pmt::make_dict();
+                d = pmt::dict_add(d, pmt::string_to_symbol("FI"), pmt::mp(packet.get_fi()));
+                d = pmt::dict_add(d, pmt::string_to_symbol("FN"), pmt::mp(packet.get_fn()));
+                d = pmt::dict_add(d, pmt::string_to_symbol("DT"), pmt::mp(packet.get_dt()));
+                message_port_pub(pmt::string_to_symbol("demux_instruction"), d);
             }
         }
         consume_each (ninput_items[0]);
