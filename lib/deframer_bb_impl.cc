@@ -214,9 +214,11 @@ namespace gr {
     void
     deframer_bb_impl::queue (pmt::pmt_t msg)
     {
-        demux_planner::packet_type_t p = (demux_planner::packet_type_t)pmt::to_long(pmt::car(msg));
-        long fn = pmt::to_long(pmt::cdr(msg));
-        d_planner.plan_for(p, fn);
+        long fi = pmt::to_long(pmt::dict_ref(msg, pmt::string_to_symbol("FI"), pmt::PMT_NIL));
+        long fn = pmt::to_long(pmt::dict_ref(msg, pmt::string_to_symbol("FN"), pmt::PMT_NIL));
+        long dt = pmt::to_long(pmt::dict_ref(msg, pmt::string_to_symbol("DT"), pmt::PMT_NIL));
+
+        d_planner.plan_for(fi, fn, dt);
     }
   } /* namespace ysf */
 } /* namespace gr */
