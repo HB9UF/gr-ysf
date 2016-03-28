@@ -82,8 +82,9 @@ namespace gr {
                     seed = (seed << 1) | reshuffled_frame[i];
                 }
 
-                scramble(reshuffled_frame+23, reshuffled_frame+23, 114-23-7, seed, 4);
-
+                scramble(reshuffled_frame+23, reshuffled_frame+23, 144-23-7, seed, 4);
+                
+                // FIXME: We should apply FEC here
                 for(uint8_t i=  0; i< 12; i++) out[output_counter++] = reshuffled_frame[i]; // u0
                 for(uint8_t i= 23; i< 35; i++) out[output_counter++] = reshuffled_frame[i]; // u1
                 for(uint8_t i= 46; i< 58; i++) out[output_counter++] = reshuffled_frame[i]; // u2
@@ -94,6 +95,7 @@ namespace gr {
                 for(uint8_t i=122; i<133; i++) out[output_counter++] = reshuffled_frame[i]; // u6
 
                 for(uint8_t i=137; i<144; i++) out[output_counter++] = reshuffled_frame[i]; // u7
+
             }
 
             d_frame[d_bit_counter++] = in[input_counter++];
