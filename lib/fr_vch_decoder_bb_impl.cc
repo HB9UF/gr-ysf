@@ -110,6 +110,7 @@ namespace gr {
     void
     fr_vch_decoder_bb_impl::reshuffle_frame(uint8_t old_frame[144], uint8_t new_frame[144])
     {
+        // I hold Sylvain Munaut in high esteem for figuring this out.
         const uint8_t permutation[144] = {
               0,   7,  12,  19,  24,  31,  36,  43,  48,  55,  60,  67, // [  0 -  11] yellow message
              72,  79,  84,  91,  96, 103, 108, 115, 120, 127, 132,      // [ 12 -  22] yellow FEC
