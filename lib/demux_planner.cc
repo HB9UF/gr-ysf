@@ -130,6 +130,11 @@ demux_planner::plan_for(long fi, long fn, long dt)
                     }
                     break;
 
+                case 0b11:
+                    for(uint8_t i=0; i < 5; i++)
+                        d_item_queue.push({ FR_VCH, i*(144/2), i*(144/2)+144/2, NONE } );
+                    break;
+
                 default:
                     std::cerr << "Ignoring unknown packet with DT=" << dt << std::endl;
                     break;
