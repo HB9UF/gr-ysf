@@ -210,6 +210,10 @@ namespace gr {
                     payload_streams.out_vd_vch[payload_streams.output_counter_vd_vch++] =
                         d_packet_buffer[item.position];
                     break;
+                case demux_planner::FR_VCH:
+                    payload_streams.out_fr_vch[payload_streams.output_counter_fr_vch++] =
+                        d_packet_buffer[item.position];
+                    break;
 
             }
             d_planner.consume_current_item();
