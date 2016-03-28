@@ -21,5 +21,6 @@ install(FILES
     ysf_fich_sink_b.xml
     ysf_dch_sink_b.xml
     ysf_vd2_vch_decoder_bb.xml
-    ysf_mbelib_block_bf.xml DESTINATION share/gnuradio/grc/blocks
+    ysf_mbelib_block_bf.xml
+    ysf_fr_vch_decoder_bb.xml DESTINATION share/gnuradio/grc/blocks
 )
