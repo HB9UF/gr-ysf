@@ -37,9 +37,11 @@ namespace gr {
             char *out_vd1_dch;
             char *out_vd2_dch;
             char *out_vd_vch;
+            char *out_fr_vch;
             uint16_t output_counter_vd1_dch;
             uint16_t output_counter_vd2_dch;
             uint16_t output_counter_vd_vch;
+            uint16_t output_counter_fr_vch;
             const int noutput_items;
         };
 

@@ -31,6 +31,7 @@ const int FICH_STREAM = 0;
 const int VD1_DCH_STREAM = 1;
 const int VD2_DCH_STREAM = 2;
 const int VD_VCH_STREAM = 3;
+const int FR_VCH_STREAM = 4;
 
 namespace gr {
   namespace ysf {
@@ -45,7 +46,7 @@ namespace gr {
     deframer_bb_impl::deframer_bb_impl(int threshold)
       : gr::block("deframer_bb",
               gr::io_signature::make(1, 1, sizeof(char)),
-              gr::io_signature::make(4, 4, sizeof(char)))
+              gr::io_signature::make(5, 5, sizeof(char)))
     {
         d_state = UNSYNCED;
         d_shift_register = 0;
@@ -86,9 +87,11 @@ namespace gr {
             (char*) output_items[VD1_DCH_STREAM], // out_vd1_dch
             (char*) output_items[VD2_DCH_STREAM], // out_vd2_dch
             (char*) output_items[VD_VCH_STREAM], // out_vd_vch
+            (char*) output_items[FR_VCH_STREAM], // out_fr_vch
             0, // output_counter_vd1_dch
             0, // output_counter_vd2_dch
             0, // output_counter_vd_vch
+            0, // output_counter_fr_vch
             noutput_items, // noutput_item
         };
 
@@ -164,6 +167,7 @@ namespace gr {
         produce(VD1_DCH_STREAM, payload_streams.output_counter_vd1_dch);
         produce(VD2_DCH_STREAM, payload_streams.output_counter_vd2_dch);
         produce(VD_VCH_STREAM, payload_streams.output_counter_vd_vch);
+        produce(FR_VCH_STREAM, payload_streams.output_counter_fr_vch);
 
         return WORK_CALLED_PRODUCE;
     }
@@ -174,7 +178,8 @@ namespace gr {
         while( d_planner.get_state() == demux_planner::ACTIONS_PENDING && 
             payload_streams.output_counter_vd1_dch < payload_streams.noutput_items &&
             payload_streams.output_counter_vd2_dch < payload_streams.noutput_items &&
-            payload_streams.output_counter_vd_vch  < payload_streams.noutput_items ) 
+            payload_streams.output_counter_vd_vch  < payload_streams.noutput_items &&
+            payload_streams.output_counter_fr_vch  < payload_streams.noutput_items ) 
         {
             demux_planner::plan_item_t item = d_planner.get_current_item();
             switch( item.output_stream )
@@ -203,6 +208,10 @@ namespace gr {
                     break;
                 case demux_planner::VD_VCH:
                     payload_streams.out_vd_vch[payload_streams.output_counter_vd_vch++] =
+                        d_packet_buffer[item.position];
+                    break;
+                case demux_planner::FR_VCH:
+                    payload_streams.out_fr_vch[payload_streams.output_counter_fr_vch++] =
                         d_packet_buffer[item.position];
                     break;
 

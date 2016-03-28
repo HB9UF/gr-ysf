@@ -33,4 +33,8 @@
     <name>VD_VCH</name>
     <type>byte</type>
   </source>
+  <source>
+    <name>FR_VCH</name>
+    <type>byte</type>
+  </source>
 </block>

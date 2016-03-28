@@ -41,24 +41,24 @@ namespace gr {
               gr::io_signature::make(1, 1, sizeof(char)),
               gr::io_signature::make(1, 1, sizeof(float)))
     {
-        if(codec == "ambe3600x2400")
+        if(codec == "AMBE 2400")
         {
-            d_codec = AMBE3600X2400;
+            d_codec = AMBE2400;
             d_mbe_packet_size = 49;
         }
-        else if(codec == "ambe3600x2450")
+        else if(codec == "AMBE 2450")
         {
-            d_codec = AMBE3600X2450;
+            d_codec = AMBE2450;
             d_mbe_packet_size = 49;
         }
-        else if(codec == "imbe7200x4400")
+        else if(codec == "IMBE 4400")
         {
-            d_codec = IMBE7200X4400;
+            d_codec = IMBE4400;
             d_mbe_packet_size = 88;
         }
         else
         {
-            throw std::invalid_argument("mbelib_block_bf_impl: Codec unknown. Must be one of ambe3600x2400, ambe3600x2450, mbe7200x4400");
+            throw std::invalid_argument("mbelib_block_bf_impl: Codec unknown. Must be one of 'AMBE 2400', AMBE 2450', IMBE 4400'");
         }
 
         d_mbe_packet_counter = 0;
@@ -104,13 +104,13 @@ namespace gr {
                 // FIXME select vocoder here
                 switch(d_codec)
                 {
-                    case AMBE3600X2400:
+                    case AMBE2400:
                         mbe_processAmbe2400Dataf(audio_out_buf, &errs, &errs2, err_str, d_mbe_packet_buffer, &d_cur_mp, &d_prev_mp, &d_prev_mp_enhanced, 3);
                         break;
-                    case AMBE3600X2450:
+                    case AMBE2450:
                         mbe_processAmbe2450Dataf(audio_out_buf, &errs, &errs2, err_str, d_mbe_packet_buffer, &d_cur_mp, &d_prev_mp, &d_prev_mp_enhanced, 3);
                         break;
-                    case IMBE7200X4400:
+                    case IMBE4400:
                         mbe_processImbe4400Dataf(audio_out_buf, &errs, &errs2, err_str, d_mbe_packet_buffer, &d_cur_mp, &d_prev_mp, &d_prev_mp_enhanced, 3);
                         break;
                 }

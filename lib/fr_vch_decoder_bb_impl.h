@@ -18,39 +18,27 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef INCLUDED_YSF_MBELIB_BLOCK_BF_IMPL_H
-#define INCLUDED_YSF_MBELIB_BLOCK_BF_IMPL_H
+#ifndef INCLUDED_YSF_FR_VCH_DECODER_BB_IMPL_H
+#define INCLUDED_YSF_FR_VCH_DECODER_BB_IMPL_H
 
-#include <ysf/mbelib_block_bf.h>
-#include <cstdint>
+#include <ysf/fr_vch_decoder_bb.h>
 
 namespace gr {
   namespace ysf {
 
-extern "C"
-{
-    #include <mbelib.h>
-}
-    class mbelib_block_bf_impl : public mbelib_block_bf
+    class fr_vch_decoder_bb_impl : public fr_vch_decoder_bb
     {
      private:
-      mbe_parms d_cur_mp;
-      mbe_parms d_prev_mp;
-      mbe_parms d_prev_mp_enhanced;
+         uint8_t d_bit_counter;
+         uint8_t d_frame[144];
 
-      enum codec_t { AMBE2400, AMBE2450, IMBE4400 };
-      codec_t d_codec;
-
-      char d_mbe_packet_buffer[88]; // For AMBE we only use 49 out of the 88
-      uint8_t d_mbe_packet_size;
-      uint16_t d_output_packet_size;
-      uint8_t d_mbe_packet_counter;
+         void reshuffle_frame(uint8_t old_frame[144], uint8_t new_frame[144]);
+         void scramble(uint8_t out[], uint8_t in[], uint16_t n, uint32_t seed, uint8_t shift);
 
      public:
-      mbelib_block_bf_impl(std::string codec);
-      ~mbelib_block_bf_impl();
+      fr_vch_decoder_bb_impl();
+      ~fr_vch_decoder_bb_impl();
 
-      // Where all the action really happens
       void forecast (int noutput_items, gr_vector_int &ninput_items_required);
 
       int general_work(int noutput_items,
@@ -62,5 +50,5 @@ extern "C"
   } // namespace ysf
 } // namespace gr
 
-#endif /* INCLUDED_YSF_MBELIB_BLOCK_BF_IMPL_H */
+#endif /* INCLUDED_YSF_FR_VCH_DECODER_BB_IMPL_H */
 

@@ -26,5 +26,6 @@ install(FILES
     fich_sink_b.h
     dch_sink_b.h
     vd2_vch_decoder_bb.h
-    mbelib_block_bf.h DESTINATION include/ysf
+    mbelib_block_bf.h
+    fr_vch_decoder_bb.h DESTINATION include/ysf
 )
