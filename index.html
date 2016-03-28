@@ -64,7 +64,7 @@ University.</p>
 <p>This section briefly outlines the <code>ysf_rx.grc</code> flowgraph found in the
 <a href="https://github.com/HB9UF/gr-ysf/tree/master/examples"><code>examples/</code></a> 
 directory of the project. The flowgraph corresponds to commit
-<code>cda9f51</code>, although I will update this page as things progress. The
+<code>6830db0</code>, although I will update this page as things progress. The
 full flowgraph can be seen <a href="ysf_rx.png">here</a>, I will split it into
 several parts to make this discussion easier to follow.</p>
 
@@ -108,21 +108,45 @@ telling it what is contained in the payload. The deframer pulls apart the payloa
 according to those instructions and distributes it into the three payload
 streams.</p>
 
-<h2>Decoding</h2>
-<img class="center" alt="Bottom part of the flowgraph" src="decoding.png">
+<h2>Data Decoding</h2>
+<img class="center" alt="Data part of the flowgraph" src="data_decoding.png">
 <p>This part of the flowgraph takes care of turning the dibits into the packets
-expected by the sinks. This is an implementation of Figures 4-30, 4-31 (which
-only differs from the former by its parameters) and 4-32 of the Yaesu spec.
-It is remarkable that all of these blocks are standard GNU Radio blocks. I had
-to hack up my own scrambler as the one from GNU Radio exhibited a bug.</p>
+expected by the data sink. This is used to display call signs, messages and
+other information. Depending on type and mode, this kind of data can be
+transferred in different ways. The top path implements the decoding shown in
+Figure 4-30 of the specification, the bottom path implements the decoding
+shown in Figure 4-31 of the spec. The two decodings only differ by their
+respective parameters. In a nutshell, the dibits are de-interleaved and then,
+forward error correction is applied by the Viterbi algorithm following a 
+<a href="https://en.wikipedia.org/wiki/Convolutional_code">Trellis Convolitional
+Code</a>. This step turns the dibits into a stream of bits where bit-errors
+are hopefully corrected by the FEC. Lastly, a fixed sequence from a scrambler
+is XORed with the bit-stream before the data is displayed in the DCH Sink. The
+de-scrambling is done manually due to a bug in GNU Radio. It is important to
+note that the scrambler is part of the system in order to have a randomly
+distributed stream of data, since long sequences of the same bit would violate
+some theoretical assumptions of the techniques that make this system robust
+towards bit-errors. It is not there to conceal the meaning of the transmission.
+</p>
 
-<p>Only three custom blocks are necessary in this part of the flowgraph: The DCH
-Sink takes the DCH packets containing e.g. call sign information and dumps them
-to the console. The V/D 2 VCH Decoder undoes the weird bit triplication
-introduced in step 3 of Figure 4-32 of the Yaesu spec. The output of this block
-is an AMBE frame. Those AMBE frames enter the third custom block, mbelib
-Conversion Block. This block calls mbelib and retrieves the synthesized speech,
-which is normalized in amplizude by an AGC and sent to the speaker.</p>
+<h2>Voice Decoding</h2>
+<img class="center" alt="Voice part of the flowgraph, bottom" src="voice_decoding.png">
+
+<p>Similarly, this is an implementation of Figures 4-32 and 4-23 of the Yaesu
+spec, to decode DN voice and VW voice, respectively. The former is quite similar
+to the approach discussed in the previous section. The custom V/D2 VCH Decoder
+block undoes the weird bit triplication introduced in step 3 of the figure. 
+The output of this block is an AMBE frame. Those AMBE frames enter another custom 
+block, the mbelib Conversion Block. This block calls mbelib and retrieves the 
+synthesized speech, which is normalized in amplitude by an AGC and sent to the speaker.</p>
+
+<p>The bottom branch is considerably simpler: The dibits are converted into
+bits by unpacking, then de-interleaved according to a pattern that was not easy
+to figure out, as it is not documented by Yaesu. The standard AMBE scrambler is
+then (still inside the same block) applied to the frame, which is handed to the
+mbelib Conversion Block as before. IMBE is used here since the rate used in
+VW mode is supposed to be backwards compatible with an IMBE rate that is luckily
+supported by mbelib.</p>
 
 <h1>License, Code and Dependencies</h1>
 <p>The project is released on a <a href="https://github.com/HB9UF/gr-ysf/">github page</a> under the 
