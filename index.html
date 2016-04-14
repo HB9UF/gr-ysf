@@ -127,7 +127,7 @@ Figure 4-30 of the specification, the bottom path implements the decoding
 shown in Figure 4-31 of the spec. The two decodings only differ by their
 respective parameters. In a nutshell, the dibits are de-interleaved and then,
 forward error correction is applied by the Viterbi algorithm following a 
-<a href="https://en.wikipedia.org/wiki/Convolutional_code">Trellis Convolitional
+<a href="https://en.wikipedia.org/wiki/Convolutional_code">Trellis Convolutional
 Code</a>. This step turns the dibits into a stream of bits where bit-errors
 are hopefully corrected by the FEC. Lastly, a fixed sequence from a scrambler
 is XORed with the bit-stream before the data is displayed in the DCH Sink. The
