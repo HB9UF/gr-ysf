@@ -232,11 +232,14 @@ dch_sink_b_impl::general_work (int noutput_items,
         {
             std::printf("    DW frame:    ");
         }
-        for(uint8_t i=0; i<d_current_packet->size(); i++) std::printf("%c", d_current_packet->at(i));
+        for(uint8_t i=0; i<d_current_packet->size(); i++)
+        {
+            uint8_t byte = d_current_packet->at(i);
+            std::printf("%c", (byte >= 32 && byte <= 126) ? byte : '.');
+        }
         std::printf("\n");
         std::printf("\n");
     }
 
   } /* namespace ysf */
 } /* namespace gr */
-
